@@ -105,6 +105,8 @@ Enter is also left to Drive. To change the **Alt+Shift+H** shortcut, open `chrom
   from the internet. Open HTML files only from sources you trust, as you would any web page.
 - **SVG:** files are displayed as images, so their scripts never run.
 
+Full privacy policy: [PRIVACY.md](PRIVACY.md).
+
 ## Limitations
 
 - Only the one file is loaded. Relative references to other files in Drive (`style.css`, `img/logo.png`) do not
@@ -134,6 +136,8 @@ extension/
 ├── sandbox.html / .js     Sandboxed page that renders HTML with document.write
 └── icons/                 16, 48 and 128 px icons
 docs/screenshots/          Images used in this README
+store/                     Chrome Web Store assets: screenshots, promo tile and listing text (listing.md)
+PRIVACY.md                 Privacy policy (linked from the store listing)
 ```
 
 The extension has no dependencies and no build step: the files in `extension/` are loaded as they are.

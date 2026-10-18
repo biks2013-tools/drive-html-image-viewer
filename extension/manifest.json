@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Drive HTML & Image Viewer",
-  "version": "1.2.0",
-  "description": "Render HTML files and view images (JPEG, PNG, GIF, SVG, WebP, HEIC, TIFF…) stored in Google Drive directly in the browser, without downloading them.",
+  "version": "1.2.1",
+  "description": "Open HTML files and images (JPEG, PNG, SVG, HEIC, TIFF…) stored in Google Drive right in the browser, without downloading them.",
   "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
   "action": { "default_title": "Open this Drive HTML file or image" },
   "background": { "service_worker": "background.js" },
