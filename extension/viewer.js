@@ -30,7 +30,8 @@ window.addEventListener("message", (event) => {
 
 function postToSandbox() {
   pendingRender = false;
-  frame.contentWindow.postMessage({ html: currentHtml }, "*");
+  // The hash (#section) of the viewer URL is applied inside the rendered document.
+  frame.contentWindow.postMessage({ html: currentHtml, hash: decodeURIComponent(location.hash.slice(1)) }, "*");
 }
 
 function renderInSandbox() {

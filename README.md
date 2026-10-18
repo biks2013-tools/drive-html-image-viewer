@@ -1,10 +1,11 @@
 # Drive HTML & Image Viewer
 
-A Chrome extension (Manifest V3) that opens **HTML files** and **images** stored in Google Drive directly in the
-browser, without downloading them.
+A Chrome extension (Manifest V3) that opens **HTML files** and **images** stored in Google Drive, and **HTML files
+in GitHub repositories**, rendered directly in the browser, without downloading them.
 
 Without it, Drive shows an `.html` file as plain source text and asks you to download images it cannot preview
-(HEIC, TIFF, PSD, RAW, SVGZ…). With it, a double-click or Enter opens the file rendered in a new tab.
+(HEIC, TIFF, PSD, RAW, SVGZ…), and GitHub shows only an HTML file's code. With it, the file opens rendered in a new
+tab, while Drive's and GitHub's own views stay exactly as they are.
 
 | HTML rendered, scripts included | HEIC shown through Drive's converter | SVG on a transparency checkerboard |
 |---|---|---|
@@ -22,6 +23,9 @@ Without it, Drive shows an `.html` file as plain source text and asks you to dow
 - **No setup:** it uses your existing Google sign-in in Chrome. There is no OAuth app, API key or Google Cloud
   project, and nothing is written to disk.
 - **Several Google accounts:** the extension follows the account in the Drive URL (`/u/1/`, `?authuser=1`).
+- **GitHub repositories:** a **Render HTML** button on the page of any `.html` file renders it, with the page's
+  stylesheets, scripts, images and data files loaded from the same repository. Links to other HTML files of the
+  repo open rendered too. Works with public repos, and with private repos your browser is signed in to.
 
 ## Install
 
@@ -38,8 +42,8 @@ install automatically.
 2. Open `chrome://extensions` and turn on **Developer mode** (top right).
 3. Click **Load unpacked** and select the unzipped folder (the one containing `manifest.json`).
 4. Optional: pin the icon from the puzzle-piece menu.
-5. **Reload any Google Drive tabs that were already open.** Chrome adds the extension only to pages loaded after
-   installation.
+5. **Reload any Google Drive and GitHub tabs that were already open.** Chrome adds the extension only to pages
+   loaded after installation.
 
 ### From source
 
@@ -48,12 +52,14 @@ git clone https://github.com/BikS2013-tools/drive-html-image-viewer.git
 ```
 
 Then load the `extension/` folder with **Load unpacked** as above. After pulling changes, click the reload icon
-on the extension's card in `chrome://extensions` and reload your Drive tabs.
+on the extension's card in `chrome://extensions` and reload your Drive and GitHub tabs.
 
 Works in Chrome and other Chromium browsers that support Manifest V3 extensions (Edge, Brave, Arc…). Browsers
 managed by an organization may block developer-mode extensions by policy.
 
 ## Usage
+
+### Google Drive
 
 On `drive.google.com`:
 
@@ -73,7 +79,34 @@ Clicking the toolbar icon on a page that isn't Drive opens a box where you can p
 Enter typed in Drive's search box, rename dialogs or other text fields is left alone. If several files are selected,
 Enter is also left to Drive. To change the **Alt+Shift+H** shortcut, open `chrome://extensions/shortcuts`.
 
+### GitHub
+
+The extension never changes GitHub's file page: the code view, **Raw**, **Blame** and **History** all stay where they
+are. Rendering is an extra view in its own tab.
+
+| Action | What happens |
+|---|---|
+| Open an `.html` file on github.com, click the blue **Render HTML** button (bottom right) | Renders the file in a new tab. |
+| Same page: extension toolbar icon, or **Alt+Shift+H** | The same. |
+| Right-click a link to a GitHub `.html` file (in the repo's file list, a README, an issue…) → **Render this GitHub HTML file** | Renders the linked file. |
+| Paste a GitHub file link (`github.com/…/blob/…`, `…/raw/…` or `raw.githubusercontent.com/…`) in the viewer's box | Renders that file. |
+
+In the rendered tab:
+
+- **View source** switches to the file's code exactly as stored in the repo (not the copy with loaded assets), and
+  **View rendered** switches back.
+- **Open on GitHub** goes back to GitHub's file page, for line numbers, blame, history and the rest of the repo.
+- Links to other HTML files of the same repository open rendered in the same tab, and the browser's **Back** button
+  returns. Links to `#sections` scroll within the page.
+
+Try it on the demo site in this repo:
+[`docs/demo/index.html`](https://github.com/BikS2013-tools/drive-html-image-viewer/blob/main/docs/demo/index.html).
+Open it on GitHub, click **Render HTML**, and the page checks its own stylesheet, script, `fetch()`, storage and
+image.
+
 ## How it works
+
+### Google Drive
 
 1. **Which file:** the extension takes the file ID from the Drive URL, the focused or selected row in the Drive
    list, or the link you right-clicked.
@@ -91,6 +124,22 @@ Enter is also left to Drive. To change the **Alt+Shift+H** shortcut, open `chrom
    - **Other formats** are loaded from Drive's preview renderer (`drive.google.com/thumbnail?id=…&sz=w4000-h4000`),
      which converts them to a browser-friendly image.
 
+### GitHub
+
+1. **Downloading:** the viewer fetches `github.com/<owner>/<repo>/raw/<ref>/<path>` with your existing GitHub
+   session. For a public repo GitHub redirects to `raw.githubusercontent.com`; for a private repo, to a raw URL
+   with a short-lived token.
+2. **Loading the page's files:** `raw.githubusercontent.com` serves CSS and JavaScript as plain text, which browsers
+   refuse to apply. The viewer therefore fetches the page's relative stylesheets and scripts from the repo and
+   puts their text into the page. For private repos it also embeds relative images as `data:` URLs.
+3. **Everything else relative** (images in public repos, `fetch()` calls, `srcset`, media) resolves through a
+   `<base>` pointing at the file's raw URL, so it loads from the same folder of the same commit or branch.
+4. **Rendering:** the same sandboxed page as for Drive.
+   - Scripts get in-memory `localStorage`, `sessionStorage` and `document.cookie`, because the sandbox has no
+     storage of its own.
+   - A small script added to the page keeps `#anchor` links inside the page and sends links to other HTML files of
+     the repo back to the viewer.
+
 ## Permissions
 
 | Permission | Why it is needed |
@@ -98,16 +147,19 @@ Enter is also left to Drive. To change the **Alt+Shift+H** shortcut, open `chrom
 | `https://drive.google.com/*` | Runs the content script on Drive (double-click, Enter, button). Also covers the fallback download URL and Drive's preview renderer. |
 | `https://drive.usercontent.google.com/*` | Downloads the file's contents. |
 | `https://lh3.google.com/*`, `https://*.googleusercontent.com/*` | Drive's preview renderer serves converted images (HEIC, TIFF…) from these hosts. |
-| `contextMenus` | Adds the right-click entry for Drive links. |
+| `https://github.com/*` | Runs the content script that adds the **Render HTML** button, and downloads files with `…/raw/…` URLs. |
+| `https://raw.githubusercontent.com/*` | GitHub serves the downloaded file and the page's stylesheets, scripts and images from here. |
+| `contextMenus` | Adds the right-click entries for Drive links and GitHub HTML file links. |
 | `activeTab` | Reads the current tab's URL when you click the toolbar icon, press the shortcut or use the right-click entry. |
 
 ## Privacy and security
 
-- **No data collection:** the extension sends nothing anywhere except to Google, to fetch the file you asked for.
+- **No data collection:** the extension sends nothing anywhere except to Google or GitHub, to fetch the file you
+  asked for (and, for GitHub, the files that page links to).
   It has no analytics, tracking or remote code, and no storage of its own.
-- **Access:** it can open only files that your signed-in Google account can already open.
-- **Isolation:** HTML files run in a sandboxed, opaque-origin page, so a malicious HTML file in Drive cannot use
-  your Google session or the extension's permissions. It can still do what any web page can, such as load content
+- **Access:** it can open only files that your signed-in Google or GitHub account can already open.
+- **Isolation:** HTML files run in a sandboxed, opaque-origin page, so a malicious HTML file in Drive or GitHub
+  cannot use your Google or GitHub session or the extension's permissions. It can still do what any web page can, such as load content
   from the internet. Open HTML files only from sources you trust, as you would any web page.
 - **SVG:** files are displayed as images, so their scripts never run.
 
@@ -115,8 +167,16 @@ Full privacy policy: [PRIVACY.md](PRIVACY.md).
 
 ## Limitations
 
-- Only the one file is loaded. Relative references to other files in Drive (`style.css`, `img/logo.png`) do not
-  resolve. Inline assets and absolute `https://` URLs (CDNs, etc.) work.
+- **Drive:** only the one file is loaded. Relative references to other files in Drive (`style.css`, `img/logo.png`)
+  do not resolve. Inline assets and absolute `https://` URLs (CDNs, etc.) work.
+- **GitHub:**
+  - Root-relative paths (`/css/site.css`), which assume a website root, do not resolve. Paths relative to the file
+    (`css/site.css`, `../img/a.png`) do.
+  - JavaScript modules that `import` other relative files, and stylesheets that `@import` others, are not followed.
+  - In private repos, images referenced from CSS (`url(…)`) and loaded at runtime by scripts or `fetch()` do not
+    load, because each private raw file needs its own token. Images in `<img>` tags do.
+  - Storage (`localStorage`, cookies) starts empty on every rendering.
+  - Only github.com: GitHub Enterprise servers and Gists are not supported.
 - Google Docs, Sheets and Slides are not HTML or image files and are rejected with a message.
 - Images shown through Drive's converter are capped at 4000 px on the longest side and lose transparency
   (transparent areas in a TIFF turn black). Formats Drive itself cannot preview show an error.
@@ -129,7 +189,9 @@ Full privacy policy: [PRIVACY.md](PRIVACY.md).
 | Double-click or Enter still shows only Drive's preview | Reload the Drive tab. Tabs opened before the extension was installed or updated don't have it yet. |
 | "Drive asked for sign-in" | Sign in to Google in this Chrome profile with an account that can open the file, then click **Reload**. |
 | "Drive returned 403/404" | The file doesn't exist, or the current Google account can't open it. With several accounts, open Drive under the account that owns the file (`/u/N/`). |
-| Page renders, but images or styles are missing | The HTML references other files in Drive by relative path (see **Limitations**). |
+| Page renders, but images or styles are missing | Drive: the HTML references other files by relative path. GitHub: see **Limitations**. The viewer's top bar lists files it could not find in the repo. |
+| No **Render HTML** button on GitHub | Reload the GitHub tab. The button appears only on the page of a single `.html`/`.htm` file (`…/blob/…`). |
+| "GitHub returned 404" | The file does not exist, or it is in a private repository: sign in to github.com in this Chrome profile, then click **Reload**. |
 
 ## Project structure
 
@@ -138,10 +200,13 @@ extension/
 ├── manifest.json          Manifest V3: permissions, content script, shortcut, sandbox page and its CSP
 ├── background.js          Service worker: toolbar icon, shortcut, context menus, opens the viewer tab
 ├── content.js / .css      Runs on drive.google.com: double-click and Enter handling, floating button
-├── viewer.html / .js / .css  Viewer page: downloads the file, detects its type, shows images, hosts the sandbox
-├── sandbox.html / .js     Sandboxed page that renders HTML with document.write
+├── github.js              Runs on github.com: the Render HTML button on .html file pages
+├── viewer.html / .js / .css  Viewer page: downloads the file (Drive or GitHub), loads a GitHub page's files,
+│                          detects the type, shows images, hosts the sandbox
+├── sandbox.html / .js     Sandboxed page that renders HTML with document.write (with in-memory storage)
 └── icons/                 16, 48 and 128 px icons
 docs/screenshots/          Images used in this README
+docs/demo/                 Demo site for GitHub rendering (stylesheet, script, image, data file, two pages)
 store/                     Chrome Web Store assets: screenshots, promo tile and listing text (listing.md)
 PRIVACY.md                 Privacy policy (linked from the store listing)
 ```
@@ -179,7 +244,7 @@ Publishing to the Chrome Web Store (B/C):
 2. **New item** → upload the release zip.
 3. Fill in the listing: description, at least one 1280×800 screenshot, and `extension/icons/icon128.png`.
 4. In **Privacy**, declare:
-   - single purpose: "view HTML files and images stored in Google Drive";
+   - single purpose: "view HTML files and images stored in Google Drive, and HTML files in GitHub repositories";
    - host permissions: as in the **Permissions** table above;
    - no data collected or transmitted.
 5. Set **Visibility** to *Unlisted* (B) or *Private* (C), then submit for review.

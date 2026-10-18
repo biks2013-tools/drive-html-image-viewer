@@ -46,5 +46,12 @@ window.addEventListener("message", function onMessage(event) {
   document.open();
   document.write(event.data.html);
   document.close();
+  const hash = typeof event.data.hash === "string" ? event.data.hash : "";
+  if (hash) {
+    const scroll = () => (document.getElementById(hash) || document.getElementsByName(hash)[0])?.scrollIntoView();
+    scroll();
+    // Again once images and fonts have loaded and moved the target.
+    window.addEventListener("load", scroll, { once: true });
+  }
 });
 window.parent.postMessage({ type: "sandbox-ready" }, "*");
