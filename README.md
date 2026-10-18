@@ -25,7 +25,13 @@ Without it, Drive shows an `.html` file as plain source text and asks you to dow
 
 ## Install
 
-### From a release (recommended)
+### From the Chrome Web Store
+
+[Drive HTML & Image Viewer on the Chrome Web Store](https://chromewebstore.google.com/detail/akelnfjdgccopikemffiakdanjamnljp)
+(submitted for review on 18 October 2026; the link works once Google approves it). Click **Add to Chrome**. Updates
+install automatically.
+
+### From a release
 
 1. Download `drive-html-image-viewer-<version>.zip` from the
    [Releases page](https://github.com/BikS2013-tools/drive-html-image-viewer/releases) and unzip it.

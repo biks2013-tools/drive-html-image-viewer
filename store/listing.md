@@ -1,7 +1,7 @@
 # Chrome Web Store listing
 
 Text and answers used for the Chrome Web Store submission. Images in this folder:
-`screenshot-*.png` (1280×800) and `promo-small-440x280.png` (small promo tile). Store icon: `extension/icons/icon128.png`.
+`screenshot-*.jpg` (1280×800) and `promo-small-440x280.jpg` (small promo tile). Store icon: `extension/icons/icon128.png`.
 
 ## Store listing
 
