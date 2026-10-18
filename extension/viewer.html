@@ -18,13 +18,13 @@
   </header>
 
   <main id="picker" hidden>
-    <h1>Open an HTML file or image from Google Drive</h1>
-    <p>Paste a Drive link (or file ID) of an <code>.html</code> file or an image you can access.</p>
+    <h1>Open an HTML file or image from Google Drive or GitHub</h1>
+    <p>Paste a Drive link (or file ID), or a GitHub file link, of an <code>.html</code> file or an image you can access.</p>
     <form id="picker-form">
-      <input id="picker-input" type="text" placeholder="https://drive.google.com/file/d/…/view" autofocus required>
+      <input id="picker-input" type="text" placeholder="https://drive.google.com/file/d/…/view  or  https://github.com/…/blob/…/page.html" autofocus required>
       <button type="submit">Open</button>
     </form>
-    <p class="hint">Tip: on drive.google.com, select an HTML file or image and press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd>, click the extension icon, or use the <b>Render HTML</b> / <b>View image</b> button.</p>
+    <p class="hint">Tip: on drive.google.com, select an HTML file or image and press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd>, click the extension icon, or use the <b>Render HTML</b> / <b>View image</b> button. On github.com, open an <code>.html</code> file and click <b>Render HTML</b>.</p>
   </main>
 
   <div id="error" hidden></div>

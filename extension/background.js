@@ -1,4 +1,4 @@
-// Service worker: decides which Drive file to render and opens the viewer tab.
+// Service worker: decides which Drive or GitHub file to render and opens the viewer tab.
 
 const DRIVE_LINK_PATTERNS = [
   "https://drive.google.com/*",
@@ -25,9 +25,39 @@ function parseDriveUrl(rawUrl) {
   return { id, authuser };
 }
 
+const GITHUB_HTML_LINK_PATTERNS = [
+  "https://github.com/*/blob/*.html",
+  "https://github.com/*/blob/*.htm",
+  "https://github.com/*/raw/*.html",
+  "https://github.com/*/raw/*.htm",
+  "https://raw.githubusercontent.com/*.html",
+  "https://raw.githubusercontent.com/*.htm"
+];
+
+// Extracts { github: "owner/repo/blob/<ref>/<path>" } from a GitHub file page or raw link.
+function parseGithubUrl(rawUrl) {
+  let url;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    return null;
+  }
+  if (url.hostname === "github.com") {
+    const match = url.pathname.match(/^\/([^/]+)\/([^/]+)\/(?:blob|raw)\/(.+)$/);
+    return match ? { github: `${match[1]}/${match[2]}/blob/${match[3]}` } : null;
+  }
+  if (url.hostname === "raw.githubusercontent.com") {
+    const match = url.pathname.match(/^\/([^/]+)\/([^/]+)\/(.+)$/);
+    return match ? { github: `${match[1]}/${match[2]}/blob/${match[3].replace(/^refs\/heads\//, "")}` } : null;
+  }
+  return null;
+}
+
 function openViewer(target, openerTab) {
   const params = new URLSearchParams();
-  if (target) {
+  if (target?.github) {
+    params.set("gh", target.github);
+  } else if (target) {
     params.set("id", target.id);
     if (target.authuser !== null && target.authuser !== undefined) params.set("authuser", target.authuser);
   }
@@ -41,7 +71,7 @@ function openViewer(target, openerTab) {
 
 // Resolves the file for a tab: URL first, then the item selected in the Drive file list.
 async function resolveTarget(tab) {
-  const fromUrl = parseDriveUrl(tab.url ?? "");
+  const fromUrl = parseDriveUrl(tab.url ?? "") ?? parseGithubUrl(tab.url ?? "");
   if (fromUrl) return fromUrl;
 
   if ((tab.url ?? "").startsWith("https://drive.google.com/")) {
@@ -67,7 +97,8 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
   if (tab) renderFromTab(tab);
 });
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
+  await chrome.contextMenus.removeAll();
   chrome.contextMenus.create({
     id: "render-drive-link",
     title: "Open this Drive link in Drive Viewer (HTML / image)",
@@ -80,11 +111,19 @@ chrome.runtime.onInstalled.addListener(() => {
     contexts: ["page"],
     documentUrlPatterns: DRIVE_LINK_PATTERNS
   });
+  chrome.contextMenus.create({
+    id: "render-github-link",
+    title: "Render this GitHub HTML file",
+    contexts: ["link"],
+    targetUrlPatterns: GITHUB_HTML_LINK_PATTERNS
+  });
 });
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "render-drive-link") {
     openViewer(parseDriveUrl(info.linkUrl), tab);
+  } else if (info.menuItemId === "render-github-link") {
+    openViewer(parseGithubUrl(info.linkUrl), tab);
   } else if (info.menuItemId === "render-drive-page" && tab) {
     renderFromTab(tab);
   }

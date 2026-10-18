@@ -1,0 +1,9 @@
+body { font: 16px/1.5 system-ui, sans-serif; max-width: 760px; margin: 32px auto; padding: 0 16px; color: #202124; }
+header { display: flex; align-items: center; gap: 16px; }
+h1 { color: #1a73e8; }
+nav { padding: 8px 0; border-bottom: 1px solid #dadce0; }
+.spacer { height: 900px; background: linear-gradient(#f1f3f4, #fff); }
+.css-check { font-size: 0; }
+.css-check::after { content: "applied ✓"; font-size: 16px; color: #188038; font-weight: 600; }
+.ok { color: #188038; font-weight: 600; }
+.fail { color: #d93025; font-weight: 600; }

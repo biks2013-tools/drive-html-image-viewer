@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Viewer demo — home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <img id="logo" src="images/logo.png" alt="Logo" width="64" height="64">
+    <h1>Drive HTML &amp; Image Viewer — GitHub demo</h1>
+  </header>
+  <nav>
+    <a href="#checks">Jump to the checks</a> ·
+    <a href="second.html">Second page</a> ·
+    <a href="second.html#details">Second page, details section</a>
+  </nav>
+  <p>This page lives in a GitHub repository. Its stylesheet, script, image and data file are separate files
+     next to it. Rendered with the extension, all of them load.</p>
+  <div class="spacer"></div>
+  <section id="checks">
+    <h2>Checks</h2>
+    <ul>
+      <li>Stylesheet (<code>style.css</code>): <span class="css-check">not applied</span></li>
+      <li>Script (<code>app.js</code>): <span id="script-check">did not run</span></li>
+      <li>Data (<code>data/info.json</code> via <code>fetch</code>): <span id="fetch-check">not loaded</span></li>
+      <li>Storage (<code>localStorage</code>): <span id="storage-check">not available</span></li>
+      <li>Image (<code>images/logo.png</code>): <span id="image-check">not loaded</span></li>
+    </ul>
+    <button id="counter" type="button">Clicked 0 times</button>
+  </section>
+  <script src="app.js"></script>
+</body>
+</html>
