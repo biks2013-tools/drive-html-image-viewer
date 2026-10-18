@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Drive Viewer</title>
+  <link rel="icon" href="icons/icon48.png">
+  <link rel="stylesheet" href="viewer.css">
+</head>
+<body>
+  <header id="bar">
+    <img src="icons/icon48.png" alt="" class="logo">
+    <span id="file-name">Drive Viewer</span>
+    <span id="status"></span>
+    <span class="spacer"></span>
+    <button id="toggle-source" type="button" hidden>View source</button>
+    <button id="reload" type="button" hidden>Reload</button>
+    <a id="open-drive" target="_blank" rel="noopener" hidden>Open in Drive</a>
+  </header>
+
+  <main id="picker" hidden>
+    <h1>Open an HTML file or image from Google Drive</h1>
+    <p>Paste a Drive link (or file ID) of an <code>.html</code> file or an image you can access.</p>
+    <form id="picker-form">
+      <input id="picker-input" type="text" placeholder="https://drive.google.com/file/d/…/view" autofocus required>
+      <button type="submit">Open</button>
+    </form>
+    <p class="hint">Tip: on drive.google.com, select an HTML file or image and press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd>, click the extension icon, or use the <b>Render HTML</b> / <b>View image</b> button.</p>
+  </main>
+
+  <div id="error" hidden></div>
+  <pre id="source" hidden></pre>
+  <div id="image-view" class="fit" hidden><img id="image" alt="" title="Click to toggle fit / actual size"></div>
+  <iframe id="frame" src="sandbox.html" title="Rendered HTML" hidden></iframe>
+
+  <script src="viewer.js"></script>
+</body>
+</html>

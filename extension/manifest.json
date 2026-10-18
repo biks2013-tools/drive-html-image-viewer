@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Drive HTML & Image Viewer",
+  "version": "1.2.0",
+  "description": "Render HTML files and view images (JPEG, PNG, GIF, SVG, WebP, HEIC, TIFF…) stored in Google Drive directly in the browser, without downloading them.",
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "action": { "default_title": "Open this Drive HTML file or image" },
+  "background": { "service_worker": "background.js" },
+  "permissions": ["contextMenus", "activeTab"],
+  "host_permissions": [
+    "https://drive.google.com/*",
+    "https://drive.usercontent.google.com/*",
+    "https://lh3.google.com/*",
+    "https://*.googleusercontent.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://drive.google.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "commands": {
+    "render-html": {
+      "suggested_key": { "default": "Alt+Shift+H" },
+      "description": "Open the current/selected Drive HTML file or image"
+    }
+  },
+  "sandbox": { "pages": ["sandbox.html"] },
+  "content_security_policy": {
+    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads; default-src 'self' * data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' * data: blob: 'unsafe-inline' 'unsafe-eval'; style-src 'self' * data: blob: 'unsafe-inline'; img-src 'self' * data: blob:; font-src 'self' * data: blob:; media-src 'self' * data: blob:; connect-src 'self' * data: blob:; frame-src 'self' * data: blob:"
+  }
+}

@@ -1,0 +1,8 @@
+# Build output (published as GitHub Release assets)
+dist/
+
+# OS / editor noise
+.DS_Store
+*.swp
+.idea/
+.vscode/

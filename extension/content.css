@@ -1,0 +1,16 @@
+#dhv-render-button {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2147483647;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 20px;
+  background: #1a73e8;
+  color: #fff;
+  font: 500 14px/1.2 "Google Sans", Roboto, Arial, sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+#dhv-render-button:hover { background: #1765cc; }
+#dhv-render-button[hidden] { display: none; }
